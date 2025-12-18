@@ -3,6 +3,8 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo "Enabling Corepack..."
+        - corepack enable
         - echo "Installing dependencies..."
         - yarn install --immutable
     build:
