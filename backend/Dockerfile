@@ -15,9 +15,13 @@ COPY .yarn ./.yarn
 # Install dependencies
 RUN yarn install --immutable
 
-# Copy tsconfig and source code
+# Copy tsconfig, drizzle config and source code
 COPY tsconfig.json ./
+COPY drizzle.config.ts ./
 COPY src ./src
+
+# Generate migrations
+RUN yarn db:generate
 
 # Build TypeScript to JavaScript
 RUN yarn build
@@ -37,8 +41,10 @@ COPY .yarn ./.yarn
 RUN yarn install --immutable && \
     yarn cache clean
 
-# Copy built application from builder
+# Copy built application and migrations from builder
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/drizzle ./drizzle
+COPY drizzle.config.ts ./
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -51,5 +57,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:8080/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Run the application
-CMD ["node", "dist/index.js"]
+# Run migrations then start the application
+CMD ["sh", "-c", "node dist/db/migrate.js && node dist/index.js"]
