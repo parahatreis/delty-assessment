@@ -17,12 +17,12 @@ export interface SignInData {
 
 export const authApi = {
   signUp: async (data: SignUpData) => {
-    const response = await api.post<{ user: User }>('/auth/signup', data);
+    const response = await api.post<{ user: User; token: string }>('/auth/signup', data);
     return response.data;
   },
 
   signIn: async (data: SignInData) => {
-    const response = await api.post<{ user: User }>('/auth/signin', data);
+    const response = await api.post<{ user: User; token: string }>('/auth/signin', data);
     return response.data;
   },
 

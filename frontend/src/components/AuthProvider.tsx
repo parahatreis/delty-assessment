@@ -3,24 +3,30 @@ import { useAuthStore } from '@/stores/authStore';
 import { authApi } from '@/api/auth';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { setUser, setIsLoading } = useAuthStore();
+  const { token, setAuth, setIsLoading } = useAuthStore();
 
   useEffect(() => {
     const checkAuth = async () => {
+      // If no token, user is not authenticated
+      if (!token) {
+        setAuth(null, null);
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const data = await authApi.me();
-        setUser(data.user);
+        setAuth(data.user, token);
       } catch {
-        // On auth check failure, set user to null
-        // Don't set loading to false here - let it happen in finally
-        setUser(null);
+        // Token is invalid, clear it
+        setAuth(null, null);
       } finally {
         setIsLoading(false);
       }
     };
 
     checkAuth();
-  }, [setUser, setIsLoading]);
+  }, [token, setAuth, setIsLoading]);
 
   return <>{children}</>;
 }

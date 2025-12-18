@@ -8,11 +8,13 @@ export interface AuthRequest extends FastifyRequest {
 
 export async function authMiddleware(request: AuthRequest, reply: FastifyReply) {
   try {
-    const token = request.cookies.token;
+    const authHeader = request.headers.authorization;
 
-    if (!token) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return reply.code(401).send({ error: 'Unauthorized' });
     }
+
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
     const decoded = jwt.verify(token, env.jwtSecret) as { userId: number };
     request.userId = decoded.userId;

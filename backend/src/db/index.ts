@@ -14,7 +14,7 @@ function getDb() {
       max: 10,
       idle_timeout: 20,
       connect_timeout: 10,
-      ssl: 'require',
+      ssl: env.isProduction ? 'require' : false,
     });
     dbInstance = drizzle(client, { schema });
     console.log('Database connection established');

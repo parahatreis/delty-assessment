@@ -59,10 +59,6 @@ fastify.register(cors, {
   allowedHeaders: ['Content-Type', 'Authorization'],
 });
 
-fastify.register(cookie, {
-  secret: env.jwtSecret,
-});
-
 fastify.register(rateLimit, {
   global: false,
 });

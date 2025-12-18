@@ -7,18 +7,32 @@ interface User {
 
 interface AuthState {
   user: User | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setUser: (user: User | null) => void;
+  setAuth: (user: User | null, token: string | null) => void;
   setIsLoading: (loading: boolean) => void;
   logout: () => void;
 }
 
+const TOKEN_KEY = 'auth_token';
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
+  token: localStorage.getItem(TOKEN_KEY),
   isAuthenticated: false,
   isLoading: true,
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  setAuth: (user, token) => {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+    set({ user, token, isAuthenticated: !!user });
+  },
   setIsLoading: (loading) => set({ isLoading: loading }),
-  logout: () => set({ user: null, isAuthenticated: false }),
+  logout: () => {
+    localStorage.removeItem(TOKEN_KEY);
+    set({ user: null, token: null, isAuthenticated: false });
+  },
 }));

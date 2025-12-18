@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from '@ui/alert';
 
 export default function SignInPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading, setUser, setIsLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, setAuth, setIsLoading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -40,7 +40,7 @@ export default function SignInPage() {
   const signInMutation = useMutation({
     mutationFn: authApi.signIn,
     onSuccess: (data) => {
-      setUser(data.user);
+      setAuth(data.user, data.token);
       navigate('/');
     },
     onError: (error: any) => {

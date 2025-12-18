@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from '@ui/alert';
 
 export default function SignUpPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading, setUser, setIsLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, setAuth, setIsLoading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -41,7 +41,7 @@ export default function SignUpPage() {
   const signUpMutation = useMutation({
     mutationFn: authApi.signUp,
     onSuccess: (data) => {
-      setUser(data.user);
+      setAuth(data.user, data.token);
       navigate('/');
     },
     onError: (error: any) => {

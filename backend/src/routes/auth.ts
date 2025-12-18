@@ -45,20 +45,12 @@ export async function authRoutes(fastify: FastifyInstance) {
       // Generate token
       const token = generateToken(newUser.id);
 
-      // Set httpOnly cookie
-      reply.setCookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-        path: '/',
-      });
-
       return { 
         user: { 
           id: newUser.id, 
           email: newUser.email 
-        } 
+        },
+        token
       };
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -96,20 +88,12 @@ export async function authRoutes(fastify: FastifyInstance) {
       // Generate token
       const token = generateToken(user.id);
 
-      // Set httpOnly cookie
-      reply.setCookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-        path: '/',
-      });
-
       return { 
         user: { 
           id: user.id, 
           email: user.email 
-        } 
+        },
+        token
       };
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -122,7 +106,6 @@ export async function authRoutes(fastify: FastifyInstance) {
 
   // Sign out
   fastify.post('/auth/signout', async (request, reply) => {
-    reply.clearCookie('token', { path: '/' });
     return { message: 'Signed out successfully' };
   });
 

@@ -6,7 +6,7 @@ import { env } from '../config/env';
 async function runMigrations() {
   const migrationClient = postgres(env.databaseUrl, {
     max: 1,
-    ssl: 'require',
+    ssl: env.isProduction ? 'require' : false,
     connect_timeout: 10,
   });
   
