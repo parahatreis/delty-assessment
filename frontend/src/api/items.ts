@@ -35,11 +35,19 @@ export interface ItemsResponse {
   };
 }
 
+export interface ItemsQueryParams {
+  page?: number;
+  pageSize?: number;
+  q?: string;
+  status?: 'todo' | 'in_progress' | 'done';
+  priority?: 'low' | 'medium' | 'high';
+  sortBy?: 'createdAt' | 'updatedAt' | 'title' | 'priority';
+  sortDir?: 'asc' | 'desc';
+}
+
 export const itemsApi = {
-  getItems: async (page = 1, pageSize = 10) => {
-    const response = await api.get<ItemsResponse>('/items', {
-      params: { page, pageSize },
-    });
+  getItems: async (params: ItemsQueryParams = {}) => {
+    const response = await api.get<ItemsResponse>('/items', { params });
     return response.data;
   },
 

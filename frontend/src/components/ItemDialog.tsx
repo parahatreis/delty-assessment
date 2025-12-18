@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Item, CreateItemData } from '@/api/items';
 import { Button } from '@ui/button';
 import {
@@ -32,6 +32,7 @@ export function ItemDialog({ open, onOpenChange, onSubmit, item, isLoading }: It
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'todo' | 'in_progress' | 'done'>('todo');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (item) {
@@ -46,6 +47,15 @@ export function ItemDialog({ open, onOpenChange, onSubmit, item, isLoading }: It
       setPriority('medium');
     }
   }, [item, open]);
+
+  // Focus title input when dialog opens
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        titleInputRef.current?.focus();
+      }, 0);
+    }
+  }, [open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,15 +76,17 @@ export function ItemDialog({ open, onOpenChange, onSubmit, item, isLoading }: It
             {item ? 'Update the details of your item.' : 'Add a new item to your list.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" aria-busy={isLoading}>
           <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
             <Input
+              ref={titleInputRef}
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
               placeholder="Enter item title"
+              aria-required="true"
             />
           </div>
 

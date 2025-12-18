@@ -57,8 +57,8 @@ export default function SignUpPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+        <div className="text-center" role="status" aria-live="polite">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto" aria-hidden="true"></div>
           <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -73,9 +73,9 @@ export default function SignUpPage() {
           <CardDescription>Create a new account to get started</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-busy={signUpMutation.isPending}>
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" role="alert">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -89,6 +89,8 @@ export default function SignUpPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
+                aria-required="true"
+                aria-invalid={error ? 'true' : 'false'}
               />
             </div>
 
@@ -102,8 +104,11 @@ export default function SignUpPage() {
                 required
                 placeholder="••••••••"
                 minLength={8}
+                aria-required="true"
+                aria-invalid={error ? 'true' : 'false'}
+                aria-describedby="password-hint"
               />
-              <p className="text-xs text-muted-foreground">
+              <p id="password-hint" className="text-xs text-muted-foreground">
                 Must be at least 8 characters
               </p>
             </div>
@@ -117,6 +122,8 @@ export default function SignUpPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 placeholder="••••••••"
+                aria-required="true"
+                aria-invalid={error ? 'true' : 'false'}
               />
             </div>
 

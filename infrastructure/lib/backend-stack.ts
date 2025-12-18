@@ -15,7 +15,7 @@ export interface BackendStackProps extends cdk.StackProps {
 }
 
 export class BackendStack extends cdk.Stack {
-  public readonly repository: ecr.Repository;
+  public readonly repository: ecr.IRepository;
   public readonly service: apprunner.CfnService;
   public readonly serviceUrl: string;
 
@@ -24,18 +24,12 @@ export class BackendStack extends cdk.Stack {
 
     const { config, vpc, securityGroup, databaseUrl, databaseSecretArn } = props;
 
-    // Create ECR repository for backend Docker images
-    this.repository = new ecr.Repository(this, 'BackendRepository', {
-      repositoryName: `${config.projectName}-${config.environment}-backend`,
-      imageScanOnPush: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      lifecycleRules: [
-        {
-          description: 'Keep last 10 images',
-          maxImageCount: 10,
-        },
-      ],
-    });
+    // Reference existing ECR repository
+    this.repository = ecr.Repository.fromRepositoryName(
+      this,
+      'BackendRepository',
+      `${config.projectName}-${config.environment}-backend`
+    );
 
     // Create IAM role for App Runner instance
     const instanceRole = new iam.Role(this, 'InstanceRole', {

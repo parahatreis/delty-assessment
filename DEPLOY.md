@@ -8,7 +8,7 @@ Simple guide to deploy this app to AWS.
 - AWS CLI installed and configured (`aws configure`)
 - Node.js 18+, Yarn, Docker
 
-## Step 1: Deploy Infrastructure
+## Step 1: Deploy Network and Database
 
 ```bash
 # Install AWS CDK globally
@@ -26,26 +26,36 @@ yarn build
 # Bootstrap CDK (first time only)
 cdk bootstrap
 
-# Deploy infrastructure
-yarn deploy
+# Deploy network and database (not backend yet)
+yarn deploy:infra
 ```
 
 This creates:
 - VPC and networking
 - RDS PostgreSQL database
-- ECR repository for Docker images
-- App Runner service for backend
 
 **Save these from the output:**
-- ECR Repository URI
-- App Runner Service URL
-- App Runner Service ARN
 - Database Secret ARN
+- Database Endpoint
 
-## Step 2: Deploy Backend
+## Step 2: Build and Push Docker Image
+
+First, create the ECR repository and push your backend image:
 
 ```bash
-# Get your ECR repository URI from Step 1
+# Deploy backend stack (creates ECR + App Runner)
+cd infrastructure
+yarn deploy:backend
+```
+
+This creates:
+- ECR repository
+- App Runner service (will fail initially - that's expected)
+
+**Get ECR URI from output, then:**
+
+```bash
+# Get your ECR repository URI from output
 ECR_URI="<account-id>.dkr.ecr.<region>.amazonaws.com/delty-assessment-dev-backend"
 
 # Login to ECR
@@ -53,12 +63,13 @@ aws ecr get-login-password --region us-east-1 | \
   docker login --username AWS --password-stdin $ECR_URI
 
 # Build and push Docker image
-cd backend
+cd ../backend
 docker build -t $ECR_URI:latest .
 docker push $ECR_URI:latest
-```
 
-App Runner will automatically detect and deploy the new image.
+# Trigger App Runner deployment
+aws apprunner start-deployment --service-arn <service-arn-from-output>
+```
 
 ## Step 3: Run Database Migrations
 

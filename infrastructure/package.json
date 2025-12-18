@@ -9,6 +9,8 @@
     "cdk": "cdk",
     "synth": "cdk synth",
     "deploy": "cdk deploy --all",
+    "deploy:infra": "cdk deploy delty-assessment-dev-network delty-assessment-dev-database",
+    "deploy:backend": "cdk deploy delty-assessment-dev-backend",
     "diff": "cdk diff",
     "destroy": "cdk destroy --all"
   },

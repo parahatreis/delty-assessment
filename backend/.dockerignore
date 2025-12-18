@@ -17,7 +17,6 @@ coverage
 .git
 .gitignore
 README.md
-tsconfig.json
 drizzle.config.ts
 .yarn/cache
 .yarn/install-state.gz

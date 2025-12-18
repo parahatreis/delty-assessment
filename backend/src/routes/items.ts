@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { db } from '../db';
 import { items } from '../db/schema';
-import { eq, and, desc, count } from 'drizzle-orm';
+import { eq, and, desc, asc, count, or, ilike, SQL } from 'drizzle-orm';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 
 const createItemSchema = z.object({
@@ -22,6 +22,11 @@ const updateItemSchema = z.object({
 const querySchema = z.object({
   page: z.string().optional().transform(val => val ? parseInt(val) : 1),
   pageSize: z.string().optional().transform(val => val ? parseInt(val) : 10),
+  q: z.string().optional(),
+  status: z.enum(['todo', 'in_progress', 'done']).optional(),
+  priority: z.enum(['low', 'medium', 'high']).optional(),
+  sortBy: z.enum(['createdAt', 'updatedAt', 'title', 'priority']).optional(),
+  sortDir: z.enum(['asc', 'desc']).optional(),
 });
 
 export async function itemRoutes(fastify: FastifyInstance) {
@@ -29,18 +34,54 @@ export async function itemRoutes(fastify: FastifyInstance) {
   fastify.addHook('preHandler', authMiddleware);
 
   // Get all items for current user with pagination
-  fastify.get('/items', async (request: AuthRequest, reply) => {
+  fastify.get('/items', {
+    config: {
+      rateLimit: {
+        max: 100,
+        timeWindow: '1 minute',
+      },
+    },
+  }, async (request: AuthRequest, reply) => {
     try {
       const query = querySchema.parse(request.query);
       const page = query.page;
       const pageSize = Math.min(query.pageSize, 100); // Max 100 items per page
       const offset = (page - 1) * pageSize;
 
+      // Build where conditions
+      const conditions: SQL[] = [eq(items.userId, request.userId!)];
+
+      // Search filter
+      if (query.q) {
+        conditions.push(
+          or(
+            ilike(items.title, `%${query.q}%`),
+            ilike(items.description, `%${query.q}%`)
+          )!
+        );
+      }
+
+      // Status filter
+      if (query.status) {
+        conditions.push(eq(items.status, query.status));
+      }
+
+      // Priority filter
+      if (query.priority) {
+        conditions.push(eq(items.priority, query.priority));
+      }
+
+      // Build order by clause
+      const sortBy = query.sortBy || 'createdAt';
+      const sortDir = query.sortDir || 'desc';
+      const orderByColumn = items[sortBy];
+      const orderByFn = sortDir === 'asc' ? asc : desc;
+
       const userItems = await db
         .select()
         .from(items)
-        .where(eq(items.userId, request.userId!))
-        .orderBy(desc(items.createdAt))
+        .where(and(...conditions))
+        .orderBy(orderByFn(orderByColumn))
         .limit(pageSize)
         .offset(offset);
 
@@ -48,7 +89,7 @@ export async function itemRoutes(fastify: FastifyInstance) {
       const countResult = await db
         .select({ count: count() })
         .from(items)
-        .where(eq(items.userId, request.userId!));
+        .where(and(...conditions));
 
       const totalCount = countResult[0]?.count || 0;
 
@@ -71,7 +112,14 @@ export async function itemRoutes(fastify: FastifyInstance) {
   });
 
   // Get single item
-  fastify.get('/items/:id', async (request: AuthRequest, reply) => {
+  fastify.get('/items/:id', {
+    config: {
+      rateLimit: {
+        max: 100,
+        timeWindow: '1 minute',
+      },
+    },
+  }, async (request: AuthRequest, reply) => {
     try {
       const { id } = request.params as { id: string };
       const itemId = parseInt(id);
@@ -93,7 +141,14 @@ export async function itemRoutes(fastify: FastifyInstance) {
   });
 
   // Create item
-  fastify.post('/items', async (request: AuthRequest, reply) => {
+  fastify.post('/items', {
+    config: {
+      rateLimit: {
+        max: 100,
+        timeWindow: '1 minute',
+      },
+    },
+  }, async (request: AuthRequest, reply) => {
     try {
       const body = createItemSchema.parse(request.body);
 
@@ -116,7 +171,14 @@ export async function itemRoutes(fastify: FastifyInstance) {
   });
 
   // Update item
-  fastify.patch('/items/:id', async (request: AuthRequest, reply) => {
+  fastify.patch('/items/:id', {
+    config: {
+      rateLimit: {
+        max: 100,
+        timeWindow: '1 minute',
+      },
+    },
+  }, async (request: AuthRequest, reply) => {
     try {
       const { id } = request.params as { id: string };
       const itemId = parseInt(id);
@@ -152,7 +214,14 @@ export async function itemRoutes(fastify: FastifyInstance) {
   });
 
   // Delete item
-  fastify.delete('/items/:id', async (request: AuthRequest, reply) => {
+  fastify.delete('/items/:id', {
+    config: {
+      rateLimit: {
+        max: 100,
+        timeWindow: '1 minute',
+      },
+    },
+  }, async (request: AuthRequest, reply) => {
     try {
       const { id } = request.params as { id: string };
       const itemId = parseInt(id);

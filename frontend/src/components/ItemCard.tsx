@@ -39,16 +39,18 @@ export function ItemCard({ item, onEdit, onDelete }: ItemCardProps) {
             variant="ghost"
             onClick={() => onEdit(item)}
             className="h-8 w-8"
+            aria-label={`Edit ${item.title}`}
           >
-            <Pencil className="h-4 w-4" />
+            <Pencil className="h-4 w-4" aria-hidden="true" />
           </Button>
           <Button
             size="icon"
             variant="ghost"
             onClick={() => onDelete(item)}
             className="h-8 w-8 text-destructive hover:text-destructive"
+            aria-label={`Delete ${item.title}`}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </CardHeader>

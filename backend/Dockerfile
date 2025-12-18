@@ -5,6 +5,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Enable Corepack for Yarn 3.6.4
+RUN corepack enable
+
 # Copy package files
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
@@ -12,8 +15,9 @@ COPY .yarn ./.yarn
 # Install dependencies
 RUN yarn install --immutable
 
-# Copy source code
-COPY . .
+# Copy tsconfig and source code
+COPY tsconfig.json ./
+COPY src ./src
 
 # Build TypeScript to JavaScript
 RUN yarn build
@@ -23,11 +27,14 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install production dependencies only
+# Enable Corepack for Yarn 3.6.4
+RUN corepack enable
+
+# Copy package files and install production dependencies
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 
-RUN yarn workspaces focus --production && \
+RUN yarn install --immutable && \
     yarn cache clean
 
 # Copy built application from builder

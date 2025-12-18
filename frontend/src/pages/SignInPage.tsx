@@ -45,8 +45,8 @@ export default function SignInPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+        <div className="text-center" role="status" aria-live="polite">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto" aria-hidden="true"></div>
           <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
       </div>
@@ -61,9 +61,9 @@ export default function SignInPage() {
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-busy={signInMutation.isPending}>
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" role="alert">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -77,6 +77,8 @@ export default function SignInPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
+                aria-required="true"
+                aria-invalid={error ? 'true' : 'false'}
               />
             </div>
 
@@ -89,6 +91,8 @@ export default function SignInPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
+                aria-required="true"
+                aria-invalid={error ? 'true' : 'false'}
               />
             </div>
 

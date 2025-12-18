@@ -18,7 +18,14 @@ const signInSchema = z.object({
 
 export async function authRoutes(fastify: FastifyInstance) {
   // Sign up
-  fastify.post('/auth/signup', async (request, reply) => {
+  fastify.post('/auth/signup', {
+    config: {
+      rateLimit: {
+        max: 5,
+        timeWindow: '15 minutes',
+      },
+    },
+  }, async (request, reply) => {
     try {
       const body = signUpSchema.parse(request.body);
 
@@ -63,7 +70,14 @@ export async function authRoutes(fastify: FastifyInstance) {
   });
 
   // Sign in
-  fastify.post('/auth/signin', async (request, reply) => {
+  fastify.post('/auth/signin', {
+    config: {
+      rateLimit: {
+        max: 10,
+        timeWindow: '15 minutes',
+      },
+    },
+  }, async (request, reply) => {
     try {
       const body = signInSchema.parse(request.body);
 
