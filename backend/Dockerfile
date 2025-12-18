@@ -34,16 +34,21 @@ WORKDIR /app
 # Enable Corepack for Yarn 3.6.4
 RUN corepack enable
 
-# Copy package files and install production dependencies
+# Copy package files and install ALL dependencies (need drizzle-kit for migrations)
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 
 RUN yarn install --immutable && \
     yarn cache clean
 
-# Copy built application and migrations from builder
+# Copy built application, migrations, and config from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
+
+# Copy startup script
+COPY start-prod.sh ./start-prod.sh
+RUN chmod +x ./start-prod.sh
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -56,5 +61,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=20s --timeout=10s --start-period=60s --retries=3 \
   CMD node -e "require('http').get('http://localhost:8080/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start the application
-CMD ["node", "dist/index.js"]
+# Start the application via startup script
+CMD ["./start-prod.sh"]
