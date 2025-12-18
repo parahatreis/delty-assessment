@@ -72,7 +72,9 @@ fastify.register(registerRoutes, { prefix: '/api' });
 const start = async () => {
   try {
     // Run database migrations before accepting traffic (idempotent)
+    console.log('Running database migrations...');
     await runMigrations();
+    console.log('Migrations completed successfully');
 
     console.log(`Starting server on port ${env.port}...`);
     console.log(`Environment: ${env.nodeEnv}`);

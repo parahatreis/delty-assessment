@@ -4,18 +4,16 @@ import postgres from 'postgres';
 import { env } from '../config/env';
 
 async function runMigrations() {
-  console.log('Running database migrations...');
-  
   const migrationClient = postgres(env.databaseUrl, {
     max: 1,
     ssl: 'require',
+    connect_timeout: 10,
   });
   
   const db = drizzle(migrationClient);
   
   try {
     await migrate(db, { migrationsFolder: './drizzle' });
-    console.log('Migrations completed successfully');
   } catch (error) {
     console.error('Migration failed:', error);
     throw error;

@@ -110,10 +110,10 @@ export class BackendStack extends cdk.Stack {
       healthCheckConfiguration: {
         protocol: 'HTTP',
         path: '/api/health',
-        interval: 10,
-        timeout: 5,
+        interval: 20,
+        timeout: 10,
         healthyThreshold: 1,
-        unhealthyThreshold: 5,
+        unhealthyThreshold: 3,
       },
       networkConfiguration: {
         egressConfiguration: {
