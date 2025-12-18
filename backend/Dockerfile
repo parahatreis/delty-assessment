@@ -44,7 +44,6 @@ RUN yarn install --immutable && \
 # Copy built application and migrations from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/drizzle ./drizzle
-COPY drizzle.config.ts ./
 
 # Set environment variables
 ENV NODE_ENV=production
