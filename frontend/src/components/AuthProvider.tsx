@@ -11,6 +11,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const data = await authApi.me();
         setUser(data.user);
       } catch {
+        // On auth check failure, set user to null
+        // Don't set loading to false here - let it happen in finally
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -18,8 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setUser, setIsLoading]);
 
   return <>{children}</>;
 }

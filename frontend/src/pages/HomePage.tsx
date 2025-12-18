@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, LogOut, Search } from 'lucide-react';
 import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
+import axios from 'axios';
 
 export default function HomePage() {
   const queryClient = useQueryClient();
@@ -71,6 +72,14 @@ export default function HomePage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['items', queryParams],
     queryFn: () => itemsApi.getItems(queryParams),
+    retry: (failureCount, error) => {
+      // Don't retry on 401 - user will be logged out by global handler
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        logout();
+        return false;
+      }
+      return failureCount < 1;
+    },
   });
 
   // Create item mutation with optimistic update

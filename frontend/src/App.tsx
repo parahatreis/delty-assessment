@@ -4,12 +4,29 @@ import { RouterProvider } from 'react-router';
 import { router } from '@/app/router';
 import { AuthProvider } from '@/components/AuthProvider';
 import { Toaster } from '@/components/ui/sonner';
+import { useAuthStore } from '@/stores/authStore';
+import axios from 'axios';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: (failureCount, error) => {
+        // Don't retry on 401 errors
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          return false;
+        }
+        return failureCount < 1;
+      },
       refetchOnWindowFocus: false,
+    },
+    mutations: {
+      onError: (error) => {
+        // Logout on 401 for mutations
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          const { logout } = useAuthStore.getState();
+          logout();
+        }
+      },
     },
   },
 });

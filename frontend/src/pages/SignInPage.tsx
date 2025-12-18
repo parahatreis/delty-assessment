@@ -12,17 +12,30 @@ import { Alert, AlertDescription } from '@ui/alert';
 
 export default function SignInPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading, setUser } = useAuthStore();
+  const { isAuthenticated, isLoading, setUser, setIsLoading } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (only after initial auth check)
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       navigate('/', { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate]);
+
+  // Reset loading state for signin page to avoid infinite loading
+  useEffect(() => {
+    if (isLoading) {
+      // Small delay to avoid flash, but ensure page becomes interactive
+      const timer = setTimeout(() => {
+        if (isLoading && !isAuthenticated) {
+          setIsLoading(false);
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, isAuthenticated, setIsLoading]);
 
   const signInMutation = useMutation({
     mutationFn: authApi.signIn,

@@ -13,15 +13,8 @@ export const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Only redirect if not already on a public page
-      const publicPaths = ['/signin', '/signup'];
-      const currentPath = window.location.pathname;
-      
-      if (!publicPaths.includes(currentPath)) {
-        window.location.href = '/signin';
-      }
-    }
+    // Don't auto-redirect on 401 - let the components handle it
+    // This prevents redirect loops with AuthProvider
     return Promise.reject(error);
   }
 );
