@@ -5,6 +5,7 @@ import rateLimit from '@fastify/rate-limit';
 import { env } from './config/env';
 import { registerRoutes } from './routes';
 import { randomUUID } from 'crypto';
+import { runMigrations } from './db/migrate';
 
 const fastify = Fastify({
   logger: {
@@ -70,6 +71,9 @@ fastify.register(registerRoutes, { prefix: '/api' });
 
 const start = async () => {
   try {
+    // Run database migrations before accepting traffic (idempotent)
+    await runMigrations();
+
     console.log(`Starting server on port ${env.port}...`);
     console.log(`Environment: ${env.nodeEnv}`);
     console.log(`CORS origin: ${env.isDevelopment ? 'localhost' : 'https://master.d3sjur73hlhrtl.amplifyapp.com'}`);
