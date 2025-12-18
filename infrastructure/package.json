@@ -9,8 +9,6 @@
     "cdk": "cdk",
     "synth": "cdk synth",
     "deploy": "cdk deploy --all",
-    "deploy:dev": "cdk deploy --all --context environment=dev",
-    "deploy:prod": "cdk deploy --all --context environment=prod",
     "diff": "cdk diff",
     "destroy": "cdk destroy --all"
   },

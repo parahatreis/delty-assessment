@@ -1,5 +1,5 @@
 export interface EnvironmentConfig {
-  environment: 'dev' | 'staging' | 'prod';
+  environment: 'dev';
   region: string;
   account?: string;
   
@@ -30,14 +30,14 @@ export interface EnvironmentConfig {
   };
 }
 
-const devConfig: EnvironmentConfig = {
+const config: EnvironmentConfig = {
   environment: 'dev',
   region: process.env.AWS_REGION || 'us-east-1',
   projectName: 'delty-assessment',
   
   vpc: {
     maxAzs: 2,
-    natGateways: 1, // Cost optimization for dev
+    natGateways: 1,
   },
   
   database: {
@@ -56,44 +56,6 @@ const devConfig: EnvironmentConfig = {
   },
 };
 
-const prodConfig: EnvironmentConfig = {
-  environment: 'prod',
-  region: process.env.AWS_REGION || 'us-east-1',
-  projectName: 'delty-assessment',
-  
-  vpc: {
-    maxAzs: 3,
-    natGateways: 3, // High availability
-  },
-  
-  database: {
-    instanceType: 't3.small',
-    allocatedStorage: 100,
-    maxAllocatedStorage: 500,
-    backupRetention: 30,
-    multiAz: true,
-    deletionProtection: true,
-  },
-  
-  appRunner: {
-    cpu: 2048, // 2 vCPU
-    memory: 4096, // 4 GB
-    port: 8080,
-  },
-};
-
-export function getConfig(environment?: string): EnvironmentConfig {
-  const env = environment || process.env.ENVIRONMENT || 'dev';
-  
-  switch (env) {
-    case 'prod':
-    case 'production':
-      return prodConfig;
-    case 'staging':
-      return { ...devConfig, environment: 'staging' };
-    case 'dev':
-    case 'development':
-    default:
-      return devConfig;
-  }
+export function getConfig(): EnvironmentConfig {
+  return config;
 }

@@ -8,9 +8,8 @@ import { getConfig } from '../lib/config';
 
 const app = new cdk.App();
 
-// Get environment configuration
-const environment = app.node.tryGetContext('environment') || 'dev';
-const config = getConfig(environment);
+// Get configuration
+const config = getConfig();
 
 // Stack environment
 const env = {

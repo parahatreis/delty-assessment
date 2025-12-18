@@ -28,9 +28,7 @@ export class BackendStack extends cdk.Stack {
     this.repository = new ecr.Repository(this, 'BackendRepository', {
       repositoryName: `${config.projectName}-${config.environment}-backend`,
       imageScanOnPush: true,
-      removalPolicy: config.environment === 'prod' 
-        ? cdk.RemovalPolicy.RETAIN 
-        : cdk.RemovalPolicy.DESTROY,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
       lifecycleRules: [
         {
           description: 'Keep last 10 images',
@@ -92,7 +90,7 @@ export class BackendStack extends cdk.Stack {
             runtimeEnvironmentVariables: [
               {
                 name: 'NODE_ENV',
-                value: config.environment === 'prod' ? 'production' : 'development',
+                value: 'production',
               },
               {
                 name: 'PORT',

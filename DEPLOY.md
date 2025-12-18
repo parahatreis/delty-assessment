@@ -7,7 +7,6 @@ Simple guide to deploy this app to AWS.
 - AWS Account
 - AWS CLI installed and configured (`aws configure`)
 - Node.js 18+, Yarn, Docker
-- GitHub repository
 
 ## Step 1: Deploy Infrastructure
 
@@ -15,13 +14,20 @@ Simple guide to deploy this app to AWS.
 # Install AWS CDK globally
 npm install -g aws-cdk
 
+# Go to infrastructure directory
+cd infrastructure
+
+# Install dependencies
+yarn install
+
+# Build TypeScript files
+yarn build
+
 # Bootstrap CDK (first time only)
 cdk bootstrap
 
 # Deploy infrastructure
-cd infrastructure
-yarn install
-yarn deploy:dev
+yarn deploy
 ```
 
 This creates:
@@ -52,7 +58,7 @@ docker build -t $ECR_URI:latest .
 docker push $ECR_URI:latest
 ```
 
-App Runner automatically deploys the new image.
+App Runner will automatically detect and deploy the new image.
 
 ## Step 3: Run Database Migrations
 
@@ -75,31 +81,32 @@ yarn db:migrate
 
 ## Step 4: Deploy Frontend
 
+### Option A: Manual Build & Upload to S3
+
+```bash
+# Set backend URL
+cd frontend
+echo "VITE_API_URL=https://<app-runner-url>/api" > .env
+
+# Build frontend
+yarn build
+
+# Upload to S3 (create bucket first if needed)
+aws s3 mb s3://delty-assessment-frontend
+aws s3 sync dist/ s3://delty-assessment-frontend --delete
+aws s3 website s3://delty-assessment-frontend --index-document index.html
+```
+
+### Option B: Deploy via AWS Amplify
+
 1. Go to [AWS Amplify Console](https://console.aws.amazon.com/amplify/)
-2. Click **"New app"** → **"Host web app"**
-3. Connect your GitHub repository
-4. Select branch: `main`
-5. Build settings: Amplify auto-detects `amplify.yml`
-6. Add environment variable:
+2. Click **"New app"** → **"Host web app"** → **"Deploy without Git provider"**
+3. Upload the `dist` folder from your build
+4. Add environment variable:
    - `VITE_API_URL` = `https://<app-runner-url>/api`
-7. **Save and deploy**
+5. **Deploy**
 
-Your frontend is now live at: `https://main.<app-id>.amplifyapp.com`
-
-## Step 5: Setup GitHub Actions
-
-Add these secrets to your GitHub repository (Settings → Secrets → Actions):
-
-```
-AWS_ACCESS_KEY_ID          - Your AWS access key
-AWS_SECRET_ACCESS_KEY      - Your AWS secret key
-AWS_REGION                 - us-east-1
-APP_RUNNER_SERVICE_ARN     - From Step 1 output
-ECR_REPOSITORY             - delty-assessment-dev-backend
-VITE_API_URL              - https://<app-runner-url>/api
-```
-
-Now pushing to `main` automatically deploys backend and frontend!
+Your frontend is now live!
 
 ## Quick Commands
 
@@ -132,20 +139,6 @@ curl https://<app-runner-url>/api/health
 open https://<amplify-url>
 ```
 
-## Production Deployment
-
-For production, use:
-```bash
-cd infrastructure
-yarn deploy:prod
-```
-
-This uses:
-- Multi-AZ RDS
-- Larger instance sizes
-- Multiple NAT Gateways
-- Deletion protection
-
 ## Troubleshooting
 
 **Backend won't start?**
@@ -162,15 +155,10 @@ This uses:
 
 ## Cost Estimate
 
-**Development:** ~$65-95/month
+~$65-95/month
 - RDS t3.micro
 - App Runner (1 vCPU, 2GB)
 - NAT Gateway
-
-**Production:** ~$260-360/month
-- RDS Multi-AZ
-- App Runner (2 vCPU, 4GB)
-- 3 NAT Gateways
 
 ## Local Development
 

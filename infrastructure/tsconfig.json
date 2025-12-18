@@ -21,9 +21,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "outDir": "dist",
-    "rootDir": "."
+    "resolveJsonModule": true
   },
   "include": ["bin/**/*", "lib/**/*"],
   "exclude": ["node_modules", "cdk.out"]

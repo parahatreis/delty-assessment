@@ -53,13 +53,11 @@ export class DatabaseStack extends cdk.Stack {
       maxAllocatedStorage: config.database.maxAllocatedStorage,
       storageEncrypted: true,
       backupRetention: cdk.Duration.days(config.database.backupRetention),
-      deleteAutomatedBackups: config.environment !== 'prod',
+      deleteAutomatedBackups: true,
       multiAz: config.database.multiAz,
       deletionProtection: config.database.deletionProtection,
-      removalPolicy: config.environment === 'prod' 
-        ? cdk.RemovalPolicy.RETAIN 
-        : cdk.RemovalPolicy.SNAPSHOT,
-      enablePerformanceInsights: config.environment === 'prod',
+      removalPolicy: cdk.RemovalPolicy.SNAPSHOT,
+      enablePerformanceInsights: false,
       cloudwatchLogsExports: ['postgresql'],
       publiclyAccessible: false,
     });
