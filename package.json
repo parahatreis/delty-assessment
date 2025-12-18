@@ -1,0 +1,58 @@
+{
+  "name": "delty-assessment",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Delty Assessment - Full-stack application with AWS deployment",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "infrastructure"
+  ],
+  "packageManager": "yarn@3.6.4+sha512.e70835d4d6d62c07be76b3c1529cb640c7443f0fe434ef4b6478a5a399218cbaf1511b396b3c56eb03bc86424cff2320f6167ad2fde273aa0df6e60b7754029f",
+  "scripts": {
+    "install:all": "yarn install",
+    "clean": "yarn workspaces foreach -A run clean || true",
+    "build": "yarn workspaces foreach -A run build",
+    "dev:backend": "yarn workspace backend dev",
+    "dev:frontend": "yarn workspace frontend dev",
+    "dev": "concurrently -n backend,frontend \"yarn dev:backend\" \"yarn dev:frontend\"",
+    "build:backend": "yarn workspace backend build",
+    "build:frontend": "yarn workspace frontend build",
+    "build:infrastructure": "yarn workspace infrastructure build",
+    "docker:backend": "yarn workspace backend docker:build",
+    "docker:test": "yarn workspace backend docker:test",
+    "deploy:infra:dev": "cd infrastructure && yarn deploy:dev",
+    "deploy:infra:prod": "cd infrastructure && yarn deploy:prod",
+    "deploy:infra": "cd infrastructure && yarn deploy",
+    "cdk:synth": "cd infrastructure && yarn synth",
+    "cdk:diff": "cd infrastructure && yarn diff",
+    "db:generate": "yarn workspace backend db:generate",
+    "db:migrate": "yarn workspace backend db:migrate",
+    "db:studio": "yarn workspace backend db:studio",
+    "type-check": "yarn workspaces foreach -A run type-check || true",
+    "lint": "yarn workspace frontend lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=3.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/delty-assessment.git"
+  },
+  "keywords": [
+    "aws",
+    "cdk",
+    "app-runner",
+    "amplify",
+    "fastify",
+    "react",
+    "typescript",
+    "monorepo"
+  ],
+  "author": "",
+  "license": "ISC"
+}
