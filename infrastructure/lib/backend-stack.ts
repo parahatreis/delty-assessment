@@ -94,6 +94,10 @@ export class BackendStack extends cdk.Stack {
                 name: 'DATABASE_URL',
                 value: databaseUrl,
               },
+              {
+                name: 'JWT_SECRET',
+                value: process.env.JWT_SECRET || 'fallback-secret-change-me',
+              },
             ],
           },
         },
