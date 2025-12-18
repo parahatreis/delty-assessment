@@ -2,18 +2,6 @@
 
 Full-stack application with AWS deployment infrastructure.
 
-## 🎉 Implementation Complete
-
-All features from `app_plan.md` have been implemented:
-- ✅ **Authentication**: Sign up, sign in, sign out with JWT (httpOnly cookies)
-- ✅ **Home Screen**: Items list with pagination, loading/empty/error states
-- ✅ **Item Management**: Full CRUD operations (Create, Read, Update, Delete)
-- ✅ **Security**: Password hashing, session persistence, user data isolation
-- ✅ **Validation**: Input validation, error handling, form validation
-
-📖 See [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) for detailed documentation.  
-🚀 See [SETUP_GUIDE.md](./SETUP_GUIDE.md) for quick start instructions.
-
 ## Project Structure
 
 ```
@@ -281,77 +269,6 @@ CDK_DEFAULT_REGION=us-east-1
 4. Commit and push
 5. Create pull request (CI runs)
 6. Merge to main (deployment workflows trigger)
-
-## Testing
-
-### Backend
-```bash
-cd backend
-yarn build  # Type checking
-docker build . # Docker build test
-```
-
-### Frontend
-```bash
-cd frontend
-yarn type-check
-yarn lint
-yarn build
-```
-
-## Monitoring
-
-- **App Runner**: CloudWatch Logs and metrics
-- **RDS**: Performance Insights (prod)
-- **Amplify**: Build and hosting logs
-- **GitHub Actions**: Workflow run history
-
-## Cost Estimate
-
-### Development
-- ~$65-95/month
-  - RDS t3.micro
-  - App Runner with scale-to-zero
-  - Single NAT Gateway
-  - Amplify free tier
-
-### Production
-- ~$258-358/month
-  - RDS t3.small Multi-AZ
-  - App Runner with higher capacity
-  - 3 NAT Gateways
-  - Higher traffic costs
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed cost breakdown.
-
-## Troubleshooting
-
-### Common Issues
-
-**Backend won't connect to database:**
-- Check DATABASE_URL format
-- Verify VPC security groups
-- Ensure App Runner VPC connector is attached
-
-**Frontend API calls fail:**
-- Verify VITE_API_URL is correct
-- Check backend CORS configuration
-- Ensure App Runner service is running
-
-**CDK deployment fails:**
-- Check IAM permissions
-- Verify AWS account limits
-- Review CloudFormation events
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed troubleshooting.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
 ## License
 

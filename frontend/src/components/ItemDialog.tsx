@@ -27,35 +27,19 @@ interface ItemDialogProps {
   isLoading?: boolean;
 }
 
-export function ItemDialog({ open, onOpenChange, onSubmit, item, isLoading }: ItemDialogProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [status, setStatus] = useState<'todo' | 'in_progress' | 'done'>('todo');
-  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
+function ItemDialogContent({ onSubmit, item, isLoading, onOpenChange }: Omit<ItemDialogProps, 'open'>) {
+  const [title, setTitle] = useState(item?.title || '');
+  const [description, setDescription] = useState(item?.description || '');
+  const [status, setStatus] = useState<'todo' | 'in_progress' | 'done'>(item?.status || 'todo');
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>(item?.priority || 'medium');
   const titleInputRef = useRef<HTMLInputElement>(null);
 
+  // Focus title input when mounted
   useEffect(() => {
-    if (item) {
-      setTitle(item.title);
-      setDescription(item.description || '');
-      setStatus(item.status);
-      setPriority(item.priority);
-    } else {
-      setTitle('');
-      setDescription('');
-      setStatus('todo');
-      setPriority('medium');
-    }
-  }, [item, open]);
-
-  // Focus title input when dialog opens
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        titleInputRef.current?.focus();
-      }, 0);
-    }
-  }, [open]);
+    setTimeout(() => {
+      titleInputRef.current?.focus();
+    }, 0);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,15 +52,14 @@ export function ItemDialog({ open, onOpenChange, onSubmit, item, isLoading }: It
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>{item ? 'Edit Item' : 'Create New Item'}</DialogTitle>
-          <DialogDescription>
-            {item ? 'Update the details of your item.' : 'Add a new item to your list.'}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4" aria-busy={isLoading}>
+    <>
+      <DialogHeader>
+        <DialogTitle>{item ? 'Edit Item' : 'Create New Item'}</DialogTitle>
+        <DialogDescription>
+          {item ? 'Update the details of your item.' : 'Add a new item to your list.'}
+        </DialogDescription>
+      </DialogHeader>
+      <form onSubmit={handleSubmit} className="space-y-4" aria-busy={isLoading}>
           <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
             <Input
@@ -104,7 +87,7 @@ export function ItemDialog({ open, onOpenChange, onSubmit, item, isLoading }: It
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={(val: any) => setStatus(val)}>
+              <Select value={status} onValueChange={(val: 'todo' | 'in_progress' | 'done') => setStatus(val)}>
                 <SelectTrigger id="status">
                   <SelectValue />
                 </SelectTrigger>
@@ -118,7 +101,7 @@ export function ItemDialog({ open, onOpenChange, onSubmit, item, isLoading }: It
 
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
-              <Select value={priority} onValueChange={(val: any) => setPriority(val)}>
+              <Select value={priority} onValueChange={(val: 'low' | 'medium' | 'high') => setPriority(val)}>
                 <SelectTrigger id="priority">
                   <SelectValue />
                 </SelectTrigger>
@@ -140,6 +123,21 @@ export function ItemDialog({ open, onOpenChange, onSubmit, item, isLoading }: It
             </Button>
           </div>
         </form>
+    </>
+  );
+}
+
+export function ItemDialog({ open, onOpenChange, onSubmit, item, isLoading }: ItemDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <ItemDialogContent 
+          key={item?.id ?? 'new'} 
+          onSubmit={onSubmit} 
+          item={item} 
+          isLoading={isLoading}
+          onOpenChange={onOpenChange}
+        />
       </DialogContent>
     </Dialog>
   );

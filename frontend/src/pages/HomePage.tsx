@@ -11,7 +11,7 @@ import { DeleteDialog } from '@/components/DeleteDialog';
 import { Alert, AlertDescription } from '@ui/alert';
 import { Input } from '@ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ui/select';
-import { Plus, LogOut, Search, SlidersHorizontal } from 'lucide-react';
+import { Plus, LogOut, Search } from 'lucide-react';
 import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
@@ -26,15 +26,30 @@ export default function HomePage() {
   const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
 
   // Parse query params
-  const queryParams = useMemo<ItemsQueryParams>(() => ({
-    page: Number(searchParams.get('page')) || 1,
-    pageSize: 10,
-    q: searchParams.get('q') || undefined,
-    status: (searchParams.get('status') as any) || undefined,
-    priority: (searchParams.get('priority') as any) || undefined,
-    sortBy: (searchParams.get('sortBy') as any) || 'createdAt',
-    sortDir: (searchParams.get('sortDir') as any) || 'desc',
-  }), [searchParams]);
+  const queryParams = useMemo<ItemsQueryParams>(() => {
+    const statusParam = searchParams.get('status');
+    const priorityParam = searchParams.get('priority');
+    const sortByParam = searchParams.get('sortBy');
+    const sortDirParam = searchParams.get('sortDir');
+
+    return {
+      page: Number(searchParams.get('page')) || 1,
+      pageSize: 10,
+      q: searchParams.get('q') || undefined,
+      status: statusParam && ['todo', 'in_progress', 'done'].includes(statusParam) 
+        ? (statusParam as 'todo' | 'in_progress' | 'done') 
+        : undefined,
+      priority: priorityParam && ['low', 'medium', 'high'].includes(priorityParam)
+        ? (priorityParam as 'low' | 'medium' | 'high')
+        : undefined,
+      sortBy: sortByParam && ['createdAt', 'title', 'priority'].includes(sortByParam)
+        ? (sortByParam as 'createdAt' | 'title' | 'priority')
+        : 'createdAt',
+      sortDir: sortDirParam && ['asc', 'desc'].includes(sortDirParam)
+        ? (sortDirParam as 'asc' | 'desc')
+        : 'desc',
+    };
+  }, [searchParams]);
 
   // Debounced search
   useEffect(() => {
@@ -50,7 +65,7 @@ export default function HomePage() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchInput]);
+  }, [searchInput, searchParams, setSearchParams]);
 
   // Fetch items
   const { data, isLoading, error, refetch } = useQuery({
@@ -66,7 +81,7 @@ export default function HomePage() {
       const previousItems = queryClient.getQueryData(['items', queryParams]);
 
       // Optimistically add new item
-      queryClient.setQueryData(['items', queryParams], (old: any) => {
+      queryClient.setQueryData(['items', queryParams], (old: { items: Item[]; pagination: { total: number; page: number; pageSize: number; totalPages: number } } | undefined) => {
         if (!old) return old;
         const tempItem: Item = {
           id: Date.now(), // temporary ID
@@ -112,7 +127,7 @@ export default function HomePage() {
       const previousItems = queryClient.getQueryData(['items', queryParams]);
 
       // Optimistically update item
-      queryClient.setQueryData(['items', queryParams], (old: any) => {
+      queryClient.setQueryData(['items', queryParams], (old: { items: Item[]; pagination: { total: number; page: number; pageSize: number; totalPages: number } } | undefined) => {
         if (!old) return old;
         return {
           ...old,
@@ -148,7 +163,7 @@ export default function HomePage() {
       const previousItems = queryClient.getQueryData(['items', queryParams]);
 
       // Optimistically remove item
-      queryClient.setQueryData(['items', queryParams], (old: any) => {
+      queryClient.setQueryData(['items', queryParams], (old: { items: Item[]; pagination: { total: number; page: number; pageSize: number; totalPages: number } } | undefined) => {
         if (!old) return old;
         return {
           ...old,
