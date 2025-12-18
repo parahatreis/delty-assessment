@@ -50,7 +50,9 @@ fastify.addHook('onResponse', async (request, reply) => {
 });
 
 fastify.register(cors, {
-  origin: env.isDevelopment ? ['http://localhost:5173', 'http://localhost:3000'] : true,
+  origin: env.isDevelopment 
+    ? ['http://localhost:5173', 'http://localhost:3000'] 
+    : ['https://master.d3sjur73hlhrtl.amplifyapp.com'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
