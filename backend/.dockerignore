@@ -17,6 +17,5 @@ coverage
 .git
 .gitignore
 README.md
-drizzle.config.ts
 .yarn/cache
 .yarn/install-state.gz
