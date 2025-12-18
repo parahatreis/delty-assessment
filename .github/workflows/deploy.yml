@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
@@ -13,7 +12,6 @@ jobs:
   backend:
     name: Deploy Backend
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'backend/') || github.event_name == 'workflow_dispatch'
     
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +43,6 @@ jobs:
   frontend:
     name: Deploy Frontend
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.modified, 'frontend/') || github.event_name == 'workflow_dispatch'
     
     steps:
       - uses: actions/checkout@v4
