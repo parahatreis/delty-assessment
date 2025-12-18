@@ -70,10 +70,15 @@ fastify.register(registerRoutes, { prefix: '/api' });
 
 const start = async () => {
   try {
+    console.log(`Starting server on port ${env.port}...`);
+    console.log(`Environment: ${env.nodeEnv}`);
+    console.log(`CORS origin: ${env.isDevelopment ? 'localhost' : 'https://master.d3sjur73hlhrtl.amplifyapp.com'}`);
+    
     await fastify.listen({ port: env.port, host: '0.0.0.0' });
-    console.log(`Server running on http://localhost:${env.port}`);
+    console.log(`Server running on http://0.0.0.0:${env.port}`);
+    console.log(`Health check available at http://0.0.0.0:${env.port}/api/health`);
   } catch (err) {
-    console.error(err);
+    console.error('Failed to start server:', err);
     process.exit(1);
   }
 };

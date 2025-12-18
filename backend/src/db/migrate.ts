@@ -26,8 +26,14 @@ async function runMigrations() {
 
 if (require.main === module) {
   runMigrations()
-    .then(() => process.exit(0))
-    .catch(() => process.exit(1));
+    .then(() => {
+      console.log('Migration script completed');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Migration script failed:', error);
+      process.exit(1);
+    });
 }
 
 export { runMigrations };
