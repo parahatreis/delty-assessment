@@ -9,12 +9,15 @@ let dbInstance: ReturnType<typeof drizzle> | null = null;
 
 function getDb() {
   if (!dbInstance) {
+    console.log('Connecting to database...');
     client = postgres(env.databaseUrl, {
       max: 10,
       idle_timeout: 20,
       connect_timeout: 10,
+      ssl: 'require',
     });
     dbInstance = drizzle(client, { schema });
+    console.log('Database connection established');
   }
   return dbInstance;
 }
